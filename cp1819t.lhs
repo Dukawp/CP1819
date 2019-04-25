@@ -1143,9 +1143,10 @@ hyloExpr h g =  cataExpr h . anaExpr g
 
 calcula :: Expr -> Int
 calcula = cataExpr (either g1 g2)
-        where g1 a = a
-              g2 (Op o,(x,y)) | (o == "+") = x+y
-                              | otherwise = x*y 
+        where g1 = id
+              g2 (Op a,(x,y)) | (a == "+") = x + y
+                              | (a == "*") = x * y
+                              | otherwise = x - y
 
 show' :: Expr -> String
 show' = cataExpr (either g1 g2)
