@@ -1139,27 +1139,35 @@ cataExpr g = g . (recExpr (cataExpr g)) . outExpr
 
 anaExpr g = inExpr . (recExpr (anaExpr g) ) . g
 
-hyloExpr h g =  h . anaExpr g
+hyloExpr h g =  cataExpr h . anaExpr g
 
 calcula :: Expr -> Int
 calcula = cataExpr (either g1 g2)
         where g1 a = a
-              g2 (Op a,(x,y)) | (a == "+") = x+y
+              g2 (Op o,(x,y)) | (o == "+") = x+y
                               | otherwise = x*y 
 
 show' :: Expr -> String
 show' = cataExpr (either g1 g2)
-        where g1 a | a >= 0 = show(a)
-                   | otherwise = "(" ++ show(a) ++ ")"
-              g2 (Op a,(x,y)) | (length(x) > 1) = "(" ++ x ++ ")" ++ a ++ y
-                              | (length(y) > 1) = x ++ a ++ "(" ++ y ++ ")" 
-                              | otherwise = x ++ a ++ y
-                              -- | (length(x) == 1 && length(y) == 1) = x ++ a ++ y
-                              --  | otherwise = "(" ++ x ++ ")" ++ a ++ "(" ++ y ++ ")" 
+        where g1 a = "(" ++ show(a) ++ ")"
+              g2 (Op o,(x,y)) | (length(x) > 1) = "(" ++ x ++ ")" ++ o ++ y
+                              | (length(y) > 1) = x ++ o ++ "(" ++ y ++ ")" 
+                              | otherwise = x ++ o ++ y
+                              -- | (length(x) == 1 && length(y) == 1) = x ++ o ++ y
+                              --  | otherwise = "(" ++ x ++ ")" ++ o ++ "(" ++ y ++ ")" 
 
 
 compile :: String -> Codigo
-compile =  undefined
+compile = cataExpr (either convInt convExp ) . p1. head . readExp
+
+
+convInt :: Int -> Codigo
+convInt i = ["PUSH " ++ show(i)]
+
+convExp :: (Op ,(Codigo,Codigo)) -> Codigo
+convExp (Op o,(x,y)) | (o == "*") = x ++ y ++ ["MULL"] 
+                     | (o == "+") = x ++ y ++ ["ADD"] 
+                     | otherwise = x ++ y ++ ["SUB"]
 
 \end{code}
 
@@ -1167,21 +1175,43 @@ compile =  undefined
 
 \begin{code}
 inL2D :: Either a (b, (X a b,X a b)) -> X a b
-inL2D = undefined
+inL2D = either Unid (uncurry (uncurry . Comp))
 
 outL2D :: X a b -> Either a (b, (X a b,X a b))
-outL2D = undefined
+outL2D (Unid a) = Left a
+outL2D (Comp b (x) (y)) = Right(b, (x , y))
 
-recL2D f = undefined
+baseL2D f g h = f -|- (g >< ( h >< h )) 
 
-cataL2D g = undefined
+recL2D f = baseL2D id id f
 
-anaL2D g = undefined
+cataL2D g = g . (recL2D (cataL2D g)) . outL2D
+
+anaL2D g = inL2D . (recL2D (anaL2D g)) . g
+
+hyloL2D h g = cataL2D h . anaL2D g
 
 collectLeafs = undefined
 
+toFloat :: Int -> Float
+toFloat n = fromInteger (toInteger n)
+
 dimen :: X Caixa Tipo -> (Float, Float)
-dimen = undefined
+dimen (Unid ((x,y),(_,_)) ) = (toFloat(x), toFloat(y))
+--dimen (Comp b (Unid((x,y),(_,_))) (Unid((x1,y1),(_,_))) ) = (toFloat(x+x1), toFloat(y+y1)) 
+dimen (Comp b (Unid((x,y),(_,_))) (a)) = (toFloat(x) + p1(dimen(a)) , toFloat(y) + p2(dimen(a)) )
+dimen (Comp b  (a) (Unid((x,y),(_,_))) ) = (toFloat(x) + p1(dimen(a)) , toFloat(y) + p2(dimen(a)) )
+dimen (Comp b  (a) (c) ) = ( p1(dimen(a)) + p2(dimen(c)) , p2(dimen(a)) + p2(dimen(c)) )
+
+
+
+
+
+-- dimen (Comp b (x) (y) ) | x == ( Unid ((w,z),(_,_)) ) && y == ( Unid ((n,m),(_,_)) ) = (toFloat(w + n ), toFloat(z + m))
+                  -- | x == ( Unid ((w,z),(_,_)) ) && y != ( Unid ((_,_),(_,_)) ) = (toFloat(w + p1(dimen(y)) ), toFloat(z + p2(dimen(y))))
+                  -- | x != ( Unid ((_,_),(_,_)) ) && y == ( Unid ((n,m),(_,_)) ) = (toFloat(p1(dimen(x) + n) ), toFloat(p2(dimen(x) + m)))
+                  -- | otherwise = ( toFloat(p1(dimen(x))) , toFloat(p2(dimen(y))) )
+
 
 calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
 calcOrigins = undefined
