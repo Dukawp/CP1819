@@ -1143,10 +1143,9 @@ hyloExpr h g =  cataExpr h . anaExpr g
 
 calcula :: Expr -> Int
 calcula = cataExpr (either g1 g2)
-        where g1 = id
-              g2 (Op a,(x,y)) | (a == "+") = x + y
-                              | (a == "*") = x * y
-                              | otherwise = x - y
+        where g1 a = a
+              g2 (Op o,(x,y)) | (o == "+") = x+y
+                              | otherwise = x*y 
 
 show' :: Expr -> String
 show' = cataExpr (either g1 g2)
@@ -1197,15 +1196,26 @@ collectLeafs = undefined
 toFloat :: Int -> Float
 toFloat n = fromInteger (toInteger n)
 
+compareDimen :: String -> (Float,Float) -> (Float,Float) -> (Float,Float)
+compareDimen t (a,b) (x,y) | t == "V" || t == "Vd" || t == "Ve" = if (a>=x) then (a,b+y) else (x,b+y)
+                           | t == "H" || t == "Hb" || t == "Ht" = if (b>=y) then (a+x,b) else (a+x,y)
+
 dimen :: X Caixa Tipo -> (Float, Float)
-dimen (Unid ((x,y),(_,_)) ) = (toFloat(x), toFloat(y))
---dimen (Comp b (Unid((x,y),(_,_))) (Unid((x1,y1),(_,_))) ) = (toFloat(x+x1), toFloat(y+y1)) 
-dimen (Comp b (Unid((x,y),(_,_))) (a)) = (toFloat(x) + p1(dimen(a)) , toFloat(y) + p2(dimen(a)) )
-dimen (Comp b  (a) (Unid((x,y),(_,_))) ) = (toFloat(x) + p1(dimen(a)) , toFloat(y) + p2(dimen(a)) )
-dimen (Comp b  (a) (c) ) = ( p1(dimen(a)) + p2(dimen(c)) , p2(dimen(a)) + p2(dimen(c)) )
+dimen = cataL2D(either g1 g2)
+          where g1 a = int2float(p1 a)
+                g2 (V,(b,c)) = compareDimen "V" b c
+                g2 (Vd,(b,c)) = compareDimen "Vd" b c
+                g2 (Ve,(b,c)) = compareDimen "Ve" b c
+                g2 (H,(b,c)) = compareDimen "H" b c
+                g2 (Hb,(b,c)) = compareDimen "Hb" b c
+                g2 (Ht,(b,c)) = compareDimen "Ht" b c
 
-
-
+-- dimen :: X Caixa Tipo -> (Float, Float)
+-- dimen (Unid ((x,y),(_,_)) ) = (toFloat(x), toFloat(y))
+-- dimen (Comp b (Unid((x,y),(_,_))) (Unid((x1,y1),(_,_))) ) = (toFloat(x+x1), toFloat(y+y1)) 
+-- dimen (Comp b (Unid((x,y),(_,_))) (a)) = (toFloat(x) + p1(dimen(a)) , toFloat(y) + p2(dimen(a)) )
+-- dimen (Comp b  (a) (Unid((x,y),(_,_))) ) = (toFloat(x) + p1(dimen(a)) , toFloat(y) + p2(dimen(a)) )
+-- dimen (Comp b  (a) (c) ) = ( p1(dimen(a)) + p2(dimen(c)) , p2(dimen(a)) + p2(dimen(c)) )
 
 
 -- dimen (Comp b (x) (y) ) | x == ( Unid ((w,z),(_,_)) ) && y == ( Unid ((n,m),(_,_)) ) = (toFloat(w + n ), toFloat(z + m))
