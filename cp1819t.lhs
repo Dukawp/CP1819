@@ -1191,10 +1191,10 @@ anaL2D g = inL2D . (recL2D (anaL2D g)) . g
 
 hyloL2D h g = cataL2D h . anaL2D g
 
-collectLeafs = undefined
+collectLeafs = cataL2D(either singl (conc . p2))
 
-toFloat :: Int -> Float
-toFloat n = fromInteger (toInteger n)
+toFloat :: (Int,Int) -> (Float,Float)
+toFloat (a,b) = (fromInteger (toInteger a), fromInteger (toInteger b))
 
 compareDimen :: String -> (Float,Float) -> (Float,Float) -> (Float,Float)
 compareDimen t (a,b) (x,y) | t == "V" || t == "Vd" || t == "Ve" = if (a>=x) then (a,b+y) else (x,b+y)
@@ -1202,7 +1202,7 @@ compareDimen t (a,b) (x,y) | t == "V" || t == "Vd" || t == "Ve" = if (a>=x) then
 
 dimen :: X Caixa Tipo -> (Float, Float)
 dimen = cataL2D(either g1 g2)
-          where g1 a = int2float(p1 a)
+          where g1 a = toFloat(p1 a)
                 g2 (V,(b,c)) = compareDimen "V" b c
                 g2 (Vd,(b,c)) = compareDimen "Vd" b c
                 g2 (Ve,(b,c)) = compareDimen "Ve" b c
@@ -1228,7 +1228,10 @@ calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
 calcOrigins = undefined
 
 calc :: Tipo -> Origem -> (Float, Float) -> Origem
-calc = undefined 
+calc Hb (a,b) (x,y) = (a,y)
+calc Ht (a,b) (x,y) = (a+x,y)
+calc Vd (a,b) (x,y) = (a-x,y)
+calc Ve (a,b) (x,y) = (x,y) 
 
 caixasAndOrigin2Pict = undefined
 \end{code}
