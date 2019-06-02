@@ -1234,15 +1234,18 @@ calc Vd (a,b) (x,y) = (a-x,y)
 calc Ve (a,b) (x,y) = (x,y) 
 
 caixasAndOrigin2Pict = undefined
+
+agrup_caixas :: X (Caixa,Origem) () -> Fig
+agrup_caixas = cataL2D( either (singl . swap) (conc . p2))
 \end{code}
 
 \subsection*{Problema 3}
 Solução:
 \begin{code}
 cos' x = prj . for loop init where
-   loop = undefined
-   init = undefined
-   prj = undefined
+   loop (c,h,s,f) = (h+c,(-(x^2)/s*h),f+s,8+f)
+   init = (1,((-0.5)*x^2),12,18)
+   prj (c,h,s,f) = c 
 \end{code}
 
 \subsection*{Problema 4}
