@@ -1223,11 +1223,25 @@ calc Vd (a,b) (x,y) = (a-x,y)
 calc Ve (a,b) (x,y) = (a,b+y) 
 calc V (a,b) (x,y) = ((a/2)-(x/2),b)
 calc H (a,b) (x,y) = (x,(b+y)/2)
+\end{code}
 
-caixasAndOrigin2Pict = undefined
+\begin{code}
 
 agrup_caixas :: X (Caixa,Origem) () -> Fig
 agrup_caixas = cataL2D( either (singl . swap) (conc . p2))
+
+criaCaixaAux :: (Origem, Caixa) -> G.Picture
+criaCaixaAux (o,((x,y),(t,c))) = G.Pictures  (singl (crCaixa o (fromInteger (toInteger x)) (fromInteger (toInteger y)) t c))
+
+caixasAndOrigin2Pict :: (X Caixa Tipo, Origem) -> G.Picture
+caixasAndOrigin2Pict = cataList (either g1 g2) . (agrup_caixas) . (calcOrigins) 
+                       where
+                        g1 () = G.pictures []
+                        g2 ((a,b),t) = G.Pictures (conc (singl(criaCaixaAux(a,b)), singl(t)))
+                        
+mostra_caixas :: (L2D, Origem) -> IO ()
+mostra_caixas = display . caixasAndOrigin2Pict
+
 \end{code}
 
 \subsection*{Problema 3}
