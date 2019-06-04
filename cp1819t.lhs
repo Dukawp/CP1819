@@ -1153,10 +1153,6 @@ show' = cataExpr (either g1 g2)
               g2 (Op o,(x,y)) | (length(x) > 1) = "(" ++ x ++ ")" ++ o ++ y
                               | (length(y) > 1) = x ++ o ++ "(" ++ y ++ ")" 
                               | otherwise = x ++ o ++ y
-                              -- | (length(x) == 1 && length(y) == 1) = x ++ o ++ y
-                              --  | otherwise = "(" ++ x ++ ")" ++ o ++ "(" ++ y ++ ")" 
-
-
 compile :: String -> Codigo
 compile = cataExpr (either convInt convExp ) . p1. head . readExp
 
@@ -1210,28 +1206,22 @@ dimen = cataL2D(either g1 g2)
                 g2 (Hb,(b,c)) = compareDimen "Hb" b c
                 g2 (Ht,(b,c)) = compareDimen "Ht" b c
 
--- dimen :: X Caixa Tipo -> (Float, Float)
--- dimen (Unid ((x,y),(_,_)) ) = (toFloat(x), toFloat(y))
--- dimen (Comp b (Unid((x,y),(_,_))) (Unid((x1,y1),(_,_))) ) = (toFloat(x+x1), toFloat(y+y1)) 
--- dimen (Comp b (Unid((x,y),(_,_))) (a)) = (toFloat(x) + p1(dimen(a)) , toFloat(y) + p2(dimen(a)) )
--- dimen (Comp b  (a) (Unid((x,y),(_,_))) ) = (toFloat(x) + p1(dimen(a)) , toFloat(y) + p2(dimen(a)) )
--- dimen (Comp b  (a) (c) ) = ( p1(dimen(a)) + p2(dimen(c)) , p2(dimen(a)) + p2(dimen(c)) )
+conc_X ::  X (Caixa,Origem) () ->  X (Caixa,Origem) () ->  X (Caixa,Origem) ()
+conc_X a b = Comp () a b--(conc (singl a) (singl b)) (conc (singl a) (singl b))
 
-
--- dimen (Comp b (x) (y) ) | x == ( Unid ((w,z),(_,_)) ) && y == ( Unid ((n,m),(_,_)) ) = (toFloat(w + n ), toFloat(z + m))
-                  -- | x == ( Unid ((w,z),(_,_)) ) && y != ( Unid ((_,_),(_,_)) ) = (toFloat(w + p1(dimen(y)) ), toFloat(z + p2(dimen(y))))
-                  -- | x != ( Unid ((_,_),(_,_)) ) && y == ( Unid ((n,m),(_,_)) ) = (toFloat(p1(dimen(x) + n) ), toFloat(p2(dimen(x) + m)))
-                  -- | otherwise = ( toFloat(p1(dimen(x))) , toFloat(p2(dimen(y))) )
-
+tira_caixa :: (X Caixa Tipo) -> Caixa
+tira_caixa (Unid a) = a
 
 calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
 calcOrigins = undefined
 
 calc :: Tipo -> Origem -> (Float, Float) -> Origem
-calc Hb (a,b) (x,y) = (a,y)
-calc Ht (a,b) (x,y) = (a+x,y)
+calc Hb (a,b) (x,y) = (x,b)
+calc Ht (a,b) (x,y) = (a,b-y)
 calc Vd (a,b) (x,y) = (a-x,y)
-calc Ve (a,b) (x,y) = (x,y) 
+calc Ve (a,b) (x,y) = (a,b+y) 
+calc V (a,b) (x,y) = ((a/2)-(x/2),b)
+calc H (a,b) (x,y) = (x,(b+y)/2)
 
 caixasAndOrigin2Pict = undefined
 
@@ -1251,8 +1241,14 @@ cos' x = prj . for loop init where
 \subsection*{Problema 4}
 Triologia ``ana-cata-hilo":
 \begin{code}
-outFS (FS l) = undefined
-outNode = undefined
+outFS :: FS a b -> [(a, (Either b (FS a b)))]
+outFS (FS []) = []
+outFS (FS ((a,File b):t)) = (a, i1 b) : outFS (FS t)
+outFS (FS ((a,Dir b):t)) = (a, i2 b) : outFS (FS t)
+
+outNode :: Node a b -> Either b (FS a b)
+outNode (File b) = i1 b
+outNode (Dir (FS a)) = i2 (FS a)
 
 baseFS f g h = undefined
 
