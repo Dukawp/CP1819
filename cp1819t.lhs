@@ -1206,14 +1206,15 @@ dimen = cataL2D(either g1 g2)
                 g2 (Hb,(b,c)) = compareDimen "Hb" b c
                 g2 (Ht,(b,c)) = compareDimen "Ht" b c
 
-conc_X ::  X (Caixa,Origem) () ->  X (Caixa,Origem) () ->  X (Caixa,Origem) ()
-conc_X a b = Comp () a b--(conc (singl a) (singl b)) (conc (singl a) (singl b))
-
-tira_caixa :: (X Caixa Tipo) -> Caixa
-tira_caixa (Unid a) = a
+calculaOrigens :: ((Tipo, (X Caixa Tipo,X Caixa Tipo)),Origem) -> ((),((X Caixa Tipo,Origem),(X Caixa Tipo,Origem)))
+calculaOrigens ((t,(t1,t2)),o) = ((),((t1,o1),(t2,o2)))
+                              where
+                                o1 = calc t o (dimen t1)
+                                o2 = calc t o (dimen t2)
 
 calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
-calcOrigins = undefined
+calcOrigins =  anaL2D ((id -|- calculaOrigens) . distl . (outL2D >< id))
+                
 
 calc :: Tipo -> Origem -> (Float, Float) -> Origem
 calc Hb (a,b) (x,y) = (x,b)
