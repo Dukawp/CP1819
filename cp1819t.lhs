@@ -929,6 +929,7 @@ type Origem = (Float, Float)
 \begin{code}
 col_blue = G.azure
 col_green = darkgreen
+col_red = G.red
 
 darkgreen = G.dark (G.dark G.green)
 \end{code}
@@ -1123,6 +1124,10 @@ outras funções auxiliares que sejam necessárias.
 
 \subsection*{Problema 1}
 
+
+\begin{center}
+\large \textbf{In e Out}
+\end{center}
 \begin{code}
 
 inExpr :: Either Int (Op,(Expr,Expr)) -> Expr
@@ -1133,6 +1138,12 @@ outExpr :: Expr -> Either Int (Op,(Expr,Expr))
 outExpr (Num a) = Left a
 outExpr (Bop a x b) = Right(x ,(a,b))
 
+\end{code}
+\begin{center}
+\large \textbf{Catamorfimo, anamorfimo, hilomorfismo e Functor de Expr}
+\end{center}
+\begin{code}
+
 recExpr f = baseExpr id f
 
 cataExpr g = g . (recExpr (cataExpr g)) . outExpr
@@ -1140,12 +1151,29 @@ cataExpr g = g . (recExpr (cataExpr g)) . outExpr
 anaExpr g = inExpr . (recExpr (anaExpr g) ) . g
 
 hyloExpr h g =  cataExpr h . anaExpr g
+\end{code}
 
+
+
+\begin{center}
+\large \textbf{Calcula}
+\end{center}
+
+\par Esta função recebe um Expr e resolve a sua .
+
+\begin{code}
 calcula :: Expr -> Int
 calcula = cataExpr (either g1 g2)
         where g1 a = a
               g2 (Op o,(x,y)) | (o == "+") = x+y
                               | otherwise = x*y 
+\end{code}
+
+
+\begin{center}
+\large \textbf{Show'}
+\end{center}
+\begin{code}
 
 show' :: Expr -> String
 show' = cataExpr (either g1 g2)
@@ -1153,6 +1181,16 @@ show' = cataExpr (either g1 g2)
               g2 (Op o,(x,y)) | (length(x) > 1) = "(" ++ x ++ ")" ++ o ++ y
                               | (length(y) > 1) = x ++ o ++ "(" ++ y ++ ")" 
                               | otherwise = x ++ o ++ y
+
+\end{code}
+
+
+
+\begin{center}
+\large \textbf{Compile}
+\end{center}
+\begin{code}
+
 compile :: String -> Codigo
 compile = cataExpr (either convInt convExp ) . p1. head . readExp
 
@@ -1207,10 +1245,9 @@ dimen = cataL2D(either g1 g2)
                 g2 (Ht,(b,c)) = compareDimen "Ht" b c
 
 calculaOrigens :: ((Tipo, (X Caixa Tipo,X Caixa Tipo)),Origem) -> ((),((X Caixa Tipo,Origem),(X Caixa Tipo,Origem)))
-calculaOrigens ((t,(t1,t2)),o) = ((),((t1,o1),(t2,o2)))
+calculaOrigens ((t,(t1,t2)),o) = ((),((t1,o),(t2,o2)))
                               where
-                                o1 = calc t o (dimen t1)
-                                o2 = calc t o (dimen t2)
+                                o2 = calc t o (dimen t1)
 
 calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
 calcOrigins =  anaL2D ((id -|- calculaOrigens) . distl . (outL2D >< id))
