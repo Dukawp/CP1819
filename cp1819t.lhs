@@ -1206,6 +1206,25 @@ convExp (Op o,(x,y)) | (o == "*") = x ++ y ++ ["MULL"]
 \end{code}
 
 \subsection*{Problema 2}
+\textbf{Diagrama L2D}
+\begin{eqnarray*}
+\xymatrix@@C=8cm{
+    |L2D| 
+    \ar[d]_-{|cataL2D g|}
+    \ar@@/^/[r]^{|outL2D|}
+&
+    |Caixa + (Tipo >< (L2D >< l2d))| 
+    \ar[d]^{|id + (id >< (g >< g))|}
+    \ar@@/^/[l]^{|inL2D|}
+\\
+    |A| 
+& 
+    |Caixa + (Tipo >< (A >< A))| 
+    \ar[l]^-{|g|}
+}
+\end{eqnarray*}
+
+Através do Diagrama representado anteriormente, e das definições de cata, ana e hylemorfimos, verificamos que:
 
 \begin{code}
 inL2D :: Either a (b, (X a b,X a b)) -> X a b
@@ -1224,7 +1243,10 @@ cataL2D g = g . (recL2D (cataL2D g)) . outL2D
 anaL2D g = inL2D . (recL2D (anaL2D g)) . g
 
 hyloL2D h g = cataL2D h . anaL2D g
+\end{code}
 
+\begin{code}
+collectLeafs :: X a b -> [a]
 collectLeafs = cataL2D(either singl (conc . p2))
 
 toFloat :: (Int,Int) -> (Float,Float)
