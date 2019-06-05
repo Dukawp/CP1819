@@ -113,11 +113,13 @@
 
 \begin{center}\large
 \begin{tabular}{ll}
-\textbf{Grupo} nr. & 99 (preencher)
+\textbf{Grupo} nr. & 63 
 \\\hline
-a63129 & Duarte Freitas (preencher)	
+a63129 & Duarte Freitas 	
 \\
-a22222 & Nome2 (preencher)	
+a75614 & Nadine Oliveira 	
+\\
+a78029 & Catarina Sousa
 \\
 \end{tabular}
 \end{center}
@@ -1125,9 +1127,7 @@ outras funções auxiliares que sejam necessárias.
 \subsection*{Problema 1}
 
 
-\begin{center}
 \large \textbf{In e Out}
-\end{center}
 \begin{code}
 
 inExpr :: Either Int (Op,(Expr,Expr)) -> Expr
@@ -1139,9 +1139,52 @@ outExpr (Num a) = Left a
 outExpr (Bop a x b) = Right(x ,(a,b))
 
 \end{code}
-\begin{center}
 \large \textbf{Catamorfimo, anamorfimo, hilomorfismo e Functor de Expr}
+
+\begin{eqnarray*}
+\xymatrix@@C=6cm{
+    |Expr|
+    \ar[d]_-{|cataExpr g|}
+    \ar@@/^1pc/[r]^{|outExpr|}
+    \ar@@{}[r]||-{\cong}
+&
+    |(N + (O >< (Expr >< Expr)))|
+    \ar[d]^{|id + (id >< (cataExpr g >< cataExpr g))|}
+    \ar@@/^1pc/[l]^{|inExpr|}
+\\
+     |B|
+&
+     |(N + (O >< (B >< B)))|
+      \ar[l]^-{|g|}
+}
+\end{eqnarray*}
+\begin{center}
+Diagrama do Catamorfismo do tipo Expr
 \end{center}
+
+\begin{eqnarray*}
+\xymatrix@@C=6cm{
+     |B|
+     \ar[r]^-{|g|}
+     \ar[d]_-{|anaExpr g|}
+&
+     |(N + (O >< (B >< B)))|
+     \ar[d]^{|id + (id >< (anaExpr g >< anaExpr g))|}
+\\
+    |Expr|
+    \ar@@/^1pc/[r]^{|Expr|}
+    \ar@@{}[r]||-{\cong}
+&
+    |(N + (O >< (Expr >< Expr)))|
+    \ar@@/^1pc/[l]^{|Expr|}
+}
+\end{eqnarray*}
+\begin{center}
+Diagrama do Anamorfismo do tipo Expr
+\end{center}
+
+
+
 \begin{code}
 
 recExpr f = baseExpr id f
@@ -1155,13 +1198,30 @@ hyloExpr h g =  cataExpr h . anaExpr g
 
 
 
-\begin{center}
 \large \textbf{Calcula}
-\end{center}
 
-\par Esta função recebe um Expr e resolve a sua .
+\begin{eqnarray*}
 
+\xymatrix@@C=8cm{
+    |Expr| 
+    \ar[d]_-{|cataExpr g|}
+    \ar@@/^/[r]^{|outExpr|}
+&
+    |Expr + (Op >< (Bop >< Bop))| 
+    \ar[d]^{|id + (id >< (g >< g))|}
+    \ar@@/^/[l]^{|inExpr|}
+\\
+    |A| 
+& 
+    |Expr + (Op >< (A >< A))| 
+    \ar[l]^-{|g|}
+}
+
+\end{eqnarray*}
+
+\par Esta função recebe um Expr e retorna o resultado das expressões aritméticas
 \begin{code}
+
 calcula :: Expr -> Int
 calcula = cataExpr (either g1 g2)
         where g1 a = a
@@ -1170,9 +1230,10 @@ calcula = cataExpr (either g1 g2)
 \end{code}
 
 
-\begin{center}
 \large \textbf{Show'}
-\end{center}
+
+\par Função que usamos para representar o Expr como uma string. Para isso foi usado um catamorfismo(either g1  g2) sendo que o g1 corresponde ao caso simples (Num 1 = 1) e o g2 trata de gerar os parenteses de acordo com o tamanho da expressão aritmética.
+
 \begin{code}
 
 show' :: Expr -> String
@@ -1184,11 +1245,8 @@ show' = cataExpr (either g1 g2)
 
 \end{code}
 
-
-
-\begin{center}
 \large \textbf{Compile}
-\end{center}
+
 \begin{code}
 
 compile :: String -> Codigo
@@ -1226,6 +1284,26 @@ convExp (Op o,(x,y)) | (o == "*") = x ++ y ++ ["MULL"]
 
 Através do Diagrama representado anteriormente, e das definições de cata, ana e hylemorfimos, verificamos que:
 
+\textbf{Diagrama L2D}
+\begin{eqnarray*}
+\xymatrix@@C=8cm{
+    |L2D| 
+    \ar[d]_-{|cataL2D g|}
+    \ar@@/^/[r]^{|outL2D|}
+&
+    |Caixa + (Tipo >< (L2D >< L2D))| 
+    \ar[d]^{|id + (id >< (cataL2D(g) >< cataL2D(g)))|}
+    \ar@@/^/[l]^{|inL2D|}
+\\
+    |A| 
+& 
+    |Caixa + (Tipo >< (A >< A))| 
+    \ar[l]^-{|g|}
+}
+\end{eqnarray*}
+
+Através do Diagrama representado anteriormente, e das definições de cata, ana e hylemorfimos, verificamos que:
+
 \begin{code}
 inL2D :: Either a (b, (X a b,X a b)) -> X a b
 inL2D = either Unid (uncurry (uncurry . Comp))
@@ -1244,11 +1322,53 @@ anaL2D g = inL2D . (recL2D (anaL2D g)) . g
 
 hyloL2D h g = cataL2D h . anaL2D g
 \end{code}
+<<<<<<< HEAD
+\textbf{Resolução da Função collectLeafs}
+Para começar, foi necessário tipar a função \textit{collectLeafs}, com o tipo definido em baixo.
+Esta função retorna todas as folhas de um elemento do tipo X a b, tendo como output um array com a informação das folhas, sendo esta do tipo \textit{a}.
+
+Para tal, é necessário colocar todos os elementos nas folhas dentro da lista, e concatenar os outputs que vão sendo gerados.
+De seguida é apresando o diagram correspondente ao catamorfismo que permitiu definir a função apresentada.
+
+\begin{eqnarray*}
+\xymatrix@@C=8cm{
+    |L2D| 
+    \ar[d]_-{|cataL2D g|}
+    \ar@@/^/[r]^{|out|}
+&
+    |Caixa + (Tipo >< (L2D >< L2D))| 
+    \ar[d]^{|id + (id >< (cataL2D(g) >< cataL2D(g)))|}
+    \ar@@/^/[l]^{|in|}
+\\
+    |[A]|
+& 
+    |Caixa + (Tipo >< ([A] >< [A]))| 
+    \ar[l]^-{|g = either singl (conc . p2)|}
+}
+\end{eqnarray*}
+=======
+>>>>>>> 6c0c72f5e9e9d5a20e609aee50d5b77768425043
 
 \begin{code}
 collectLeafs :: X a b -> [a]
 collectLeafs = cataL2D(either singl (conc . p2))
+\end{code}
 
+
+\textbf{Resolução da funcão dimen}
+A função dimen tem como objectivo calcular as dimensões de um elemento do tipo X Caixa Tipo, 
+com base na suas caixas e o posicionamento relativo das últimas.
+
+Para definir a função \textit{dimen}, foi necessário criar duas funções auxiliares:
+\begin{itemize}
+\item \textbf{toFloat}: Que converte as coordenadas (Int,Int) em (Float,Float)
+\item \textbf{compareDimen}: Que a partir do tipo fornecido calcula as dimensões com base no posicionamento das caixas.
+\end{itemize}
+
+Aplicando um catamorfismo L2D, com o gene que aplica a função \textit{toFloat} ao elemento do tipo \textit{Caixa},
+e a função aos elementos do tipo \textit{(Tipo,(origem,ponto)}, retorna a dimensão total da figura.
+
+\begin{code}
 toFloat :: (Int,Int) -> (Float,Float)
 toFloat (a,b) = (fromInteger (toInteger a), fromInteger (toInteger b))
 
@@ -1265,6 +1385,37 @@ dimen = cataL2D(either g1 g2)
                 g2 (H,(b,c)) = compareDimen "H" b c
                 g2 (Hb,(b,c)) = compareDimen "Hb" b c
                 g2 (Ht,(b,c)) = compareDimen "Ht" b c
+\end{code}
+\textbf{Resolução da funcão calcOrigins}
+
+
+\begin{eqnarray*}
+\xymatrix@@C=6cm{
+     |L2D >< O|
+     \ar[r]^-{outL2D >< id}
+     \ar[d]_-{|anaL2D (id -|- calculaOrigens) . distl . (outL2D >< id)|}
+&
+     |(C + T >< (L2D >< L2D)) >< O|
+     \ar[r]^-{distl}
+&
+    |C >< O + T >< (L2D >< L2D) >< O|
+    \ar[r]^-{id+calculaOrigens}
+&   
+    | C >< O + (L2D><O)><(L2D><O)|
+    \ar[d]_-{id + (anaL2D (id -|- calculaOrigens) . distl . (outL2D >< id) >< anaL2D (id -|- calculaOrigens) . distl . (outL2D >< id))}
+&
+    | C >< O + (X (Caixa,Origem) () >< X (Caixa,Origem) ())
+    \ar[l]^-{C >< 0}
+\\
+    |X (Caixa,Origem) ()|
+
+}
+\end{eqnarray*}
+\begin{center}
+Diagrama da funçao calculaOrigins com anamorfismo
+\end{center}
+
+\begin{code}
 
 calculaOrigens :: ((Tipo, (X Caixa Tipo,X Caixa Tipo)),Origem) -> ((),((X Caixa Tipo,Origem),(X Caixa Tipo,Origem)))
 calculaOrigens ((t,(t1,t2)),o) = ((),((t1,o),(t2,o2)))
@@ -1274,7 +1425,6 @@ calculaOrigens ((t,(t1,t2)),o) = ((),((t1,o),(t2,o2)))
 calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
 calcOrigins =  anaL2D ((id -|- calculaOrigens) . distl . (outL2D >< id))
                 
-
 calc :: Tipo -> Origem -> (Float, Float) -> Origem
 calc Hb (a,b) (x,y) = (x,b)
 calc Ht (a,b) (x,y) = (a,b-y)
@@ -1284,11 +1434,43 @@ calc V (a,b) (x,y) = ((a/2)-(x/2),b)
 calc H (a,b) (x,y) = (x,(b+y)/2)
 \end{code}
 
-\begin{code}
+\textbf{Resolução da funcão agrup_Caixas}
+\begin{eqnarray*}
+\xymatrix@@C=8cm{
+    |X(Caixa,Origem) ()| 
+    \ar[d]_-{|cataL2D g|}
+    \ar@@/^/[r]^{|out|}
+&
+    |(Caixa,Origem) + (() >< (L2D >< L2D))| 
+    \ar[d]^{|id + (id >< (cataL2D(g) >< cataL2D(g)))|}
+    \ar@@/^/[l]^{|in|}
+\\
+    |[(Origem,Caixa)]|
+& 
+    |(Caixa,Origem) + (() >< ([(Origem,Caixa)] >< [(Origem,Caixa)]))| 
+    \ar[l]^-{|g = either (singl . swap) (conc . p2)|}
+}
+\end{eqnarray*}
 
+\begin{code}
 agrup_caixas :: X (Caixa,Origem) () -> Fig
 agrup_caixas = cataL2D( either (singl . swap) (conc . p2))
 
+\end{code}
+\textbf{Resolução da funcão caixasAndOrigin2Pict}
+Esta função foi definida recorrendo a algumas funções previamente definidas. A \textit{agrup_caixas}
+e a  \textit{calcOrigins}. 
+Primeiro foi aplicada a função calcOrigins que tem o seguinte tipo:
+\textit{calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()}
+De seguida foi aplicada a função agrup_caixas com a seguinte definição:
+\textit{agrup_caixas :: X (Caixa,Origem) () -> Fig}
+
+Após isto, e dado que o tipo \textit{Fig} é uma lista, foi aplicado um catamorfismo de listas com os seguintes genes:
+\textit{g1} -> aplicado ao tipo () devolve uma G.Picture vazia
+\textit{g2} -> aplicado ao tipo \textit{((Origem, Caixa),Tipo)}, e com recurso à função auxiliar \textit{criaCaixaAux} 
+gera as restantes figuras.
+
+\begin{code}
 criaCaixaAux :: (Origem, Caixa) -> G.Picture
 criaCaixaAux (o,((x,y),(t,c))) = G.Pictures  (singl (crCaixa o (fromInteger (toInteger x)) (fromInteger (toInteger y)) t c))
 
@@ -1297,10 +1479,12 @@ caixasAndOrigin2Pict = cataList (either g1 g2) . (agrup_caixas) . (calcOrigins)
                        where
                         g1 () = G.pictures []
                         g2 ((a,b),t) = G.Pictures (conc (singl(criaCaixaAux(a,b)), singl(t)))
-                        
+\end{code}
+\textbf{Resolução da funcão mostra_caixas}
+Após a resolução da função anterior, nesta bastou recorrer à função pré-definida \textit{display} para a representação gráfica das fuguras criadas.
+\begin{code}
 mostra_caixas :: (L2D, Origem) -> IO ()
 mostra_caixas = display . caixasAndOrigin2Pict
-
 \end{code}
 
 \subsection*{Problema 3}
@@ -1315,53 +1499,90 @@ cos' x = prj . for loop init where
 \subsection*{Problema 4}
 Triologia ``ana-cata-hilo":
 \begin{code}
-outFS :: FS a b -> [(a, (Either b (FS a b)))]
-outFS (FS []) = []
-outFS (FS ((a,File b):t)) = (a, i1 b) : outFS (FS t)
-outFS (FS ((a,Dir b):t)) = (a, i2 b) : outFS (FS t)
+
+outFS (FS l) = map(id><outNode) l
 
 outNode :: Node a b -> Either b (FS a b)
 outNode (File b) = i1 b
-outNode (Dir (FS a)) = i2 (FS a)
+outNode (Dir(FS l)) = i2 (FS l)
 
-baseFS f g h = undefined
+baseFS f g h = map(f><(g -|- h))
 
 cataFS :: ([(a, Either b c)] -> c) -> FS a b -> c
-cataFS g = undefined
+cataFS g = g . recFS(cataFS g) . outFS
 
 anaFS :: (c -> [(a, Either b c)]) -> c -> FS a b
-anaFS g = undefined
+anaFS f =  inFS . recFS(anaFS f) . f
 
-hyloFS g h = undefined
+hyloFS g h = cataFS g . (anaFS h)
 \end{code}
+
+\begin{eqnarray*}
+\xymatrix@@C=3.4cm@@R=2cm{
+  |FS a b|
+    \ar[d]||{|(cataNat g)|}
+    \ar@@/_0.5cm/[r]_-{|out|}
+&
+  |(a >< (b + (FS a b)))*|
+    \ar@@/_0.5cm/[l]^-{|in|}
+    \ar[d]||{|id >< (id + (cataNat g))|}
+\\
+  |c|
+&
+  |(a><(b+c))*|
+    \ar[l]^-{|g|}
+}
+\end{eqnarray*}
+
+
 Outras funções pedidas:
 \begin{code}
 check :: (Eq a) => FS a b -> Bool
-check = undefined
+check = cataFS( uncurry (&&) . (nr >< and) . split (fmap p1) (rights . (fmap p2)))
 
 tar :: FS a b -> [(Path a, b)]
-tar = undefined
-
+tar = cataFS (concat. fmap ((either (singl.(singl><id)) (uncurry (fmap . (><id) . (:) )) ) . distr))
+ 
 untar :: (Eq a) => [(Path a, b)] -> FS a b
-untar = undefined
+untar = anaFS (map h)
+  where
+    p = cond (null . tail . p1) (i1 . p2) (i2 . singl . (tail >< id))
+    h = split (head . p1) p
 
 find :: (Eq a) => a -> FS a b -> [Path a]
-find = undefined
+find a = cataList (either nil  (cond ((==a).last.p1.p1) (cons.(p1><id)) p2)) . tar
 
 new :: (Eq a) => Path a -> b -> FS a b -> FS a b
-new = undefined
+new p file fs = cond null (const fs) ((const . anaFS f) ((p, fs), file)) $ p
+    where
+        f :: Eq a => ((Path a, FS a b), b) -> [(a, Either b ((Path a, FS a b), b))]
+        f = cond (null.tail.p1.p1) (cons.split (head.p1><i1) ((\(l, c) -> fmap (either (id><i1) (\(t, y) -> (t, i2 (([t], y), c)))) l).(fmap distr.outFS.p2><id))) g -- verificar se ultimo elemento
+        g :: Eq a => ((Path a, FS a b), b) -> [(a, Either b ((Path a, FS a b), b))]
+        g al@((((x:xs), fs0)),file0) = if (null.filter ((==x).p1).outFS $ fs0) then  (((x, i2 ((xs, FS []), file0)):).go) al else go al
+        go :: Eq a => ((Path a, FS a b), b) -> [(a, Either b ((Path a, FS a b), b))]
+        go ((((x:xs), fs0)),file0) = fmap ((either (id><i1) (\(a, b) -> if (a == x) then (a, i2 ((xs, b), file0)) else (a, i2 (([a], b), file0)))).distr) . outFS $ fs0
 
 cp :: (Eq a) => Path a -> Path a -> FS a b -> FS a b
-cp = undefined
+cp from to = (cond (null.p1)  p2 (\([p], s) -> new to p s)) . split  ((cataList (either nil (cond ((==from).p1.p1) (singl.p2.p1) nil))).tar) id
 
 rm :: (Eq a) => (Path a) -> (FS a b) -> FS a b
-rm = undefined
+rm p fs = cond (null.p1) p2 (anaFS f) $ (p, fs)
+  where
+   f :: Eq a => (Path a, FS a b) -> [(a, Either b (Path a, FS a b))]
+   f = cond (null.tail.p1)(\((x:[]), fs0) -> m ([x], fs0) (/=x)) (\((x:xs), fs0) -> m (xs, fs0) (const True))
+   m :: (Path a, FS a b ) -> (a -> Bool) -> [(a, Either b (Path a, FS a b))]
+   m (p, f) b =  fmap (id><(id -|- (split (const p) id))) . filter (b.p1) .  outFS $ f
 
 auxJoin :: ([(a, Either b c)],d) -> [(a, Either b (d,c))]
 auxJoin = undefined
 
 cFS2Exp :: a -> FS a b -> (Exp () a)
-cFS2Exp = undefined
+cFS2Exp r fs = anaExp f $ (r, fs)
+    where
+        f :: (a, FS a b) -> Either () (a, [(a, FS a b)])
+        f = cond (null.outFS.p2) (i1.(!)) (i2.(id><(fmap (filtro.distr).outFS)))
+        filtro :: Either (a, b) (a, FS a b) -> (a, FS a b)
+        filtro = either (\(a,_) -> (a, FS [(a, Dir (FS []))])) id
 \end{code}
 
 %----------------- Fim do anexo com soluções dos alunos ------------------------%
