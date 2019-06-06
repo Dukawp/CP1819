@@ -1202,7 +1202,7 @@ hyloExpr h g =  cataExpr h . anaExpr g
 
 \begin{eqnarray*}
 
-\xymatrix@@C=8cm{
+\xymatrix@@C=4cm{
     |Expr| 
     \ar[d]_-{|cataExpr g|}
     \ar@@/^/[r]^{|outExpr|}
@@ -1219,7 +1219,6 @@ hyloExpr h g =  cataExpr h . anaExpr g
 
 \end{eqnarray*}
 
-\par Esta função recebe um Expr e retorna o resultado das expressões aritméticas
 \begin{code}
 
 calcula :: Expr -> Int
@@ -1267,7 +1266,7 @@ convExp (Op o,(x,y)) | (o == "*") = x ++ y ++ ["MULL"]
 
 \textbf{Diagrama L2D}
 \begin{eqnarray*}
-\xymatrix@@C=8cm{
+\xymatrix@@C=4cm{
     |L2D| 
     \ar[d]_-{|cataL2D g|}
     \ar@@/^/[r]^{|outL2D|}
@@ -1311,7 +1310,7 @@ Para tal, é necessário colocar todos os elementos nas folhas dentro da lista, 
 De seguida é apresando o diagram correspondente ao catamorfismo que permitiu definir a função apresentada.
 
 \begin{eqnarray*}
-\xymatrix@@C=8cm{
+\xymatrix@@C=4cm{
     |L2D| 
     \ar[d]_-{|cataL2D g|}
     \ar@@/^/[r]^{|out|}
@@ -1366,33 +1365,6 @@ dimen = cataL2D(either g1 g2)
 \end{code}
 \textbf{Resolução da funcão calcOrigins}
 
-
-\begin{eqnarray*}
-\xymatrix@@C=6cm{
-     |L2D >< O|
-     \ar[r]^-{outL2D >< id}
-     \ar[d]_-{|anaL2D (id -|- calculaOrigens) . distl . (outL2D >< id)|}
-&
-     |(C + T >< (L2D >< L2D)) >< O|
-     \ar[r]^-{distl}
-&
-    |C >< O + T >< (L2D >< L2D) >< O|
-    \ar[r]^-{id+calculaOrigens}
-&   
-    | C >< O + (L2D><O)><(L2D><O)|
-    \ar[d]_-{id + (anaL2D (id -|- calculaOrigens) . distl . (outL2D >< id) >< anaL2D (id -|- calculaOrigens) . distl . (outL2D >< id))}
-&
-    | C >< O + (X (Caixa,Origem) () >< X (Caixa,Origem) ())
-    \ar[l]^-{C >< 0}
-\\
-    |X (Caixa,Origem) ()|
-
-}
-\end{eqnarray*}
-\begin{center}
-Diagrama da funçao calculaOrigins com anamorfismo
-\end{center}
-
 \begin{code}
 
 calculaOrigens :: ((Tipo, (X Caixa Tipo,X Caixa Tipo)),Origem) -> ((),((X Caixa Tipo,Origem),(X Caixa Tipo,Origem)))
@@ -1414,7 +1386,7 @@ calc H (a,b) (x,y) = (x,(b+y)/2)
 
 \textbf{Resolução da funcão agrup_Caixas}
 \begin{eqnarray*}
-\xymatrix@@C=8cm{
+\xymatrix@@C=3cm{
     |X(Caixa,Origem) ()| 
     \ar[d]_-{|cataL2D g|}
     \ar@@/^/[r]^{|out|}
